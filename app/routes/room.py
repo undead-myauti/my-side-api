@@ -103,8 +103,7 @@ async def check_room_availability(id: int, start_time: str, end_time: str):
                 return JSONResponse(status_code=404, content="Room not found")
         return JSONResponse(status_code=200, content=f"Room {id} available")
     except:
-        pass
-    pass
+        return JSONResponse(status_code=400, content="Error checking room availability")
 
 @router.get("/rooms/{id}/reservations")
 async def get_room_reservations(id: int, date: str | None = None):
