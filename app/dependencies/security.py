@@ -26,7 +26,6 @@ def get_password_hash(password: str) -> str:
     return pswd_context.hash(password)
 
 def verify_password(plain_password:str, hashed_password: str) -> bool:
-    breakpoint()
     return pswd_context.verify(plain_password, hashed_password)
 
 async def get_user(email: str)-> User | None:

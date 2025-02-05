@@ -35,6 +35,7 @@ async def register(user: UserIn):
 
 @router.post("/token")
 async def login(user: UserIn):
+    logger.debug(f"Trying generate user token")
     user = await authenticate_user(user.email, user.password)
 
     access_token = create_access_token(user.id)
