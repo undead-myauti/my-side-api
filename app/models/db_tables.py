@@ -1,14 +1,14 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 
 Base = declarative_base()
-
 
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, nullable=False, unique=True)
     name = Column(String, nullable=False)
     password = Column(String, unique=False, nullable=False)
     reservations = relationship("Reservation", back_populates="reservation_owner")
@@ -37,5 +37,7 @@ class Reservation(Base):
 
 DATABASE_URL = "postgresql://admin:admin@localhost:5432/mysideapi"
 engine = create_engine(DATABASE_URL)
+
+Session = sessionmaker(bind=engine)
 
 Base.metadata.create_all(bind=engine)

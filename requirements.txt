@@ -2,3 +2,7 @@ fastapi
 sqlalchemy
 uvicorn
 psycopg2
+python-jose
+python-multipart
+passlib[bcrypt]
+bcrypt==4.0.1

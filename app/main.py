@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 import uvicorn
-from app.models.models import Base, engine
+
+from app.models.db_tables import Base, engine
+from app.routes import user
 
 app = FastAPI()
+app.include_router(user.router)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
