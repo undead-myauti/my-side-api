@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 import logging
+
+from fastapi.responses import JSONResponse
 from app.models.user import UserIn
 from app.dependencies.security import authenticate_user, create_access_token, get_user, get_password_hash
 from app.models.db_tables import User, Session
@@ -12,8 +14,20 @@ db = Session()
 
 @router.post("/register", status_code=201)
 async def register(user: UserIn):
-    logger.debug(f"Registering user: {user}")
+    """
+    Register a new user in database
 
+    Params:
+        {
+            email: "xpto@xpto.com",
+            password: xpto,
+            name: xpto
+        }
+
+    Response:
+        200 - User registered
+        400 - Error registering user
+    """
     if await get_user(user.email):
         raise HTTPException(
             status_code = status.HTTP_400_BAD_REQUEST, 
@@ -25,18 +39,63 @@ async def register(user: UserIn):
 
         db.add(User(name=user.name, password=hashed_pswd, email=user.email))
         db.commit()
+        logger.debug(f"User registered: {user}")
 
-        raise HTTPException(status_code=status.HTTP_200_OK, detail="User registered")
-    except SQLAlchemyError as error:
+        return JSONResponse(status_code=status.HTTP_200_OK, content="User registered")
+    except:
         db.rollback()
-        logger.log(msg="Error registering user")
+        logger.debug(msg="Error registering user")
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content="Error registering user")
     finally:
         db.close()
 
 @router.post("/token")
 async def login(user: UserIn):
-    logger.debug(f"Trying generate user token")
+    """
+    This route authenticate an user with his email and password and generates a new JWT token
+
+    Params:
+        {
+            email: "xpto@xpto.com",
+            password: xpto,
+            name: xpto
+        }
+
+    Response:
+        {
+            access_token: JWT_TOKEN,
+            token_type: bearer
+        }
+    """
     user = await authenticate_user(user.email, user.password)
 
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.email)
+    logger.debug(f"User token created")
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/user/{email}")
+async def get_user(email: str):
+    """
+    This route returns an user based on his email
+
+    Params:
+        {
+            email: xpto@xpto.com
+        }
+    
+    Response:
+        200 - user: User
+        404 - User not found
+        400 - Error getting user
+    """
+    try:
+        user = db.query(User).where(User.email == email).first()
+        if user:
+            return {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name
+            } 
+    except:
+        logging.debug("Error getting user")
+        return JSONResponse(status_code=400, content="Error getting user")

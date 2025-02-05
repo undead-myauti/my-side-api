@@ -3,11 +3,12 @@ from fastapi import FastAPI
 import uvicorn
 
 from app.models.db_tables import Base, engine
-from app.routes import user, room
+from app.routes import reservation, user, room
 
 app = FastAPI(debug=True)
 app.include_router(user.router)
 app.include_router(room.router)
+app.include_router(reservation.router)
 
 logging.basicConfig(
     level=logging.DEBUG,
