@@ -2,10 +2,11 @@ from fastapi import FastAPI
 import uvicorn
 
 from app.models.db_tables import Base, engine
-from app.routes import user
+from app.routes import user, room
 
 app = FastAPI()
 app.include_router(user.router)
+app.include_router(room.router)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
