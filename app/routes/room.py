@@ -41,6 +41,7 @@ async def create_room(room: room_model):
         )
     except SQLAlchemyError as error:
         db.rollback()
+        logging.exception("Error creating room")
         raise HTTPException(status_code=400, detail=f"Error creating room! Detail: {error}")
     finally:
         db.close()
@@ -61,6 +62,7 @@ async def get_rooms():
             return JSONResponse(status_code=200, content="There's no room created")
         return rooms_list
     except:
+        logging.exception("Error looking for rooms")
         return JSONResponse(status_code=404, content="Error looking for rooms")
     
 @router.get("/rooms/{id}/availability")
@@ -103,6 +105,7 @@ async def check_room_availability(id: int, start_time: str, end_time: str):
                 return JSONResponse(status_code=404, content="Room not found")
         return JSONResponse(status_code=200, content=f"Room {id} available")
     except:
+        logging.exception("Error checking room availability")
         return JSONResponse(status_code=400, content="Error checking room availability")
 
 @router.get("/rooms/{id}/reservations")
@@ -144,4 +147,5 @@ async def get_room_reservations(id: int, date: str | None = None):
         
         return JSONResponse(status_code=202, content="No reservations for this room")
     except:
+        logging.exception("Error looking for reservations")
         return JSONResponse(status_code=400, content="Error looking for reservations")

@@ -50,6 +50,7 @@ async def create_reservation(reservation: Reservation_model):
         return JSONResponse(status_code=201, content=f"Room {reservation.room_id} reserved successfully")
     except:
         db.rollback()
+        logging.exception(f"Failed registering room {reservation.room_id}")
         return JSONResponse(status_code=400, content=f"Failed registering room {reservation.room_id}")
     
 @router.delete("/reservations/{id}")
@@ -85,6 +86,7 @@ async def delete_reservation(id: int, token: str):
     except:
         logging.debug("Error deleting reservation")
         db.rollback()
+        logging.exception(f"Error deleting reservation {reservation.room_id}")
         return JSONResponse(status_code=400, content="Error deleting reservation")
 
 @router.get("/reservation/{id}")
@@ -108,4 +110,5 @@ async def get_reservation(id: int):
             return reservation
         return JSONResponse(status_code=404, content="Reservation not found")
     except:
+        logging.exception("Error getting reservation")
         return JSONResponse(status_code=400, content="Error getting reservation")

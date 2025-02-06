@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -35,7 +36,7 @@ class Reservation(Base):
     reserved_room = relationship("Room")
 
 
-DATABASE_URL = "postgresql://admin:admin@localhost:5432/mysideapi"
+DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 
 Session = sessionmaker(bind=engine)

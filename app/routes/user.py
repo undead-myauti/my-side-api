@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import Annotated
+from fastapi import APIRouter, HTTPException, status, Depends
 import logging
 
 from fastapi.responses import JSONResponse
@@ -97,5 +98,5 @@ async def get_user(email: str):
                 "name": user.name
             } 
     except:
-        logging.debug("Error getting user")
+        logging.exception("Error getting user")
         return JSONResponse(status_code=400, content="Error getting user")

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: mysideapi
+    ports:
+      - "8000:8000"
+    # volumes:
+    #   - ./app:/app/app
+    environment:
+      - DATABASE_URL=postgresql://admin:admin@psql:5432/mysideapi
+    depends_on:
+      psql:
+        condition: service_healthy
+  psql:
+    image: postgres:latest
+    container_name: postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mysideapi
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U admin -d mysideapi'"]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
