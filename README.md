@@ -23,7 +23,7 @@ docker compose up -d
 
 Com os comandos acima, você entrará na pasta do repositório e subirá o container contendo o PostgreSQL e a nossa API 🙂
 
-Para conferir se está tudo ok, use ``` docker ps```, caso o status dos dois serviços estiver definido como **UP** é porque estamos prontos para começar a utilizar a API!
+Para conferir se está tudo ok, use ```docker ps```, caso o status dos dois serviços estiver definido como **UP** é porque estamos prontos para começar a utilizar a API!
 
 # Lista de endpoints
 Abaixo está descrito os endpoints existentes no projeto e o que deve ser passado como parâmetro.
@@ -106,16 +106,25 @@ Lá você encontrará mais detalhes sobre cada rota.
 | `start_time`      | `string` | **Required as URL param** |
 | `end_time`      | `string` | **Required as URL param**|
 
-#### Exibir reservas de uma sala
+#### Exibir disponibilidade de uma sala em um período de tempo
 
 ```http
-  GET /reservations
+  GET /rooms/{id}/reservations
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required as URL param**|
+| `date`      | `string` | **Optional as URL param** |
+
+#### Exibir uma reserva
+
+```http
+  GET /reservation/{id}
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `id`      | `int` | **Required as URL param**|
-| `date`      | `string` | **Optional as URL param**|
 
 
 #### Exibir usuário
