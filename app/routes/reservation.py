@@ -1,14 +1,11 @@
 import logging
 import json
-from datetime import datetime
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import SQLAlchemyError
-from jose import jwt, JWTError
 
 from app.models.db_tables import Reservation, Session
 from app.models.reservation import Reservation as Reservation_model
-from app.dependencies.security import get_current_user, oauth2_scheme, SECRET_KEY, ALGORITHM
+from app.dependencies.security import get_current_user
 from app.routes.room import check_room_availability
 from app.routes.user import get_user
 
@@ -40,7 +37,7 @@ async def create_reservation(reservation: Reservation_model):
     room_availability = await check_room_availability(reservation.room_id, reservation.start_time, reservation.end_time)
 
     if room_availability.status_code == 404 or room_availability.status_code == 400:
-        return JSONResponse(status_code=400, content=json.loads(room_availability.body))
+        raise HTTPException(status_code=400, detail=room_availability.detail)
 
     owner = await get_user(reservation.owner_email)
 
@@ -51,7 +48,7 @@ async def create_reservation(reservation: Reservation_model):
     except:
         db.rollback()
         logging.exception(f"Failed registering room {reservation.room_id}")
-        return JSONResponse(status_code=400, content=f"Failed registering room {reservation.room_id}")
+        raise HTTPException(status_code=400, detail=f"Failed registering room {reservation.room_id}")
     
 @router.delete("/reservations/{id}")
 async def delete_reservation(id: int, token: str):
@@ -75,6 +72,8 @@ async def delete_reservation(id: int, token: str):
     
     reservation = await get_reservation(id)
     current_user = await get_current_user(token)
+    if isinstance(reservation, HTTPException):
+        return HTTPException(status_code=reservation.status_code, detail=reservation.detail)
 
     try:
         if reservation.owner == current_user.id:
@@ -82,12 +81,11 @@ async def delete_reservation(id: int, token: str):
             db.commit()
             logging.debug("Reservation deleted successfully")
             return JSONResponse(status_code=200, content="Reservation deleted successfully")
-        return JSONResponse(status_code=403, content="Permission denied")
+        return HTTPException(status_code=403, detail="Permission denied")
     except:
-        logging.debug("Error deleting reservation")
         db.rollback()
-        logging.exception(f"Error deleting reservation {reservation.room_id}")
-        return JSONResponse(status_code=400, content="Error deleting reservation")
+        logging.exception(f"Error deleting reservation")
+        raise HTTPException(status_code=400, detail="Error deleting reservation")
 
 @router.get("/reservation/{id}")
 async def get_reservation(id: int):
@@ -108,7 +106,7 @@ async def get_reservation(id: int):
         reservation = db.query(Reservation).where(Reservation.id == id).first()
         if reservation:
             return reservation
-        return JSONResponse(status_code=404, content="Reservation not found")
+        return HTTPException(status_code=404, detail="Reservation not found")
     except:
         logging.exception("Error getting reservation")
-        return JSONResponse(status_code=400, content="Error getting reservation")
+        raise HTTPException(status_code=400, detail="Error getting reservation")

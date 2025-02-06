@@ -1,12 +1,10 @@
-from typing import Annotated
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException
 import logging
 
 from fastapi.responses import JSONResponse
 from app.models.user import UserIn
 from app.dependencies.security import authenticate_user, create_access_token, get_user, get_password_hash
 from app.models.db_tables import User, Session
-from sqlalchemy.exc import SQLAlchemyError
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ async def register(user: UserIn):
     """
     if await get_user(user.email):
         raise HTTPException(
-            status_code = status.HTTP_400_BAD_REQUEST, 
+            status_code = 400, 
             detail = "User already exists"
         )
 
@@ -42,11 +40,11 @@ async def register(user: UserIn):
         db.commit()
         logger.debug(f"User registered: {user}")
 
-        return JSONResponse(status_code=status.HTTP_200_OK, content="User registered")
+        return JSONResponse(status_code=200, content="User registered")
     except:
         db.rollback()
         logger.debug(msg="Error registering user")
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content="Error registering user")
+        raise HTTPException(status_code=400, detail="Error registering user")
     finally:
         db.close()
 
@@ -99,4 +97,4 @@ async def get_user(email: str):
             } 
     except:
         logging.exception("Error getting user")
-        return JSONResponse(status_code=400, content="Error getting user")
+        raise HTTPException(status_code=400, detail="Error getting user")

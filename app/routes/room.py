@@ -88,10 +88,13 @@ async def check_room_availability(id: int, start_time: str, end_time: str):
         formated_end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S")
 
         if formated_start_time > formated_end_time:
-            return JSONResponse(status_code=400, content="Start time should be greater than end time")
+            raise HTTPException(status_code=400, detail="Start time should be greater than end time")
     
         reservations = await get_room_reservations(id)
+        if not isinstance(reservations, JSONResponse):
+            return HTTPException(status_code=reservations.status_code, detail=reservations.detail)
         reservation_list = json.loads(reservations.body.decode("utf-8"))
+        
 
         for res in reservation_list:
             if reservations.status_code == 202:
@@ -100,13 +103,13 @@ async def check_room_availability(id: int, start_time: str, end_time: str):
             formated_res_start_time = datetime.strptime(res["start_time"], "%Y-%m-%dT%H:%M:%S")
             if formated_start_time < formated_res_end_time and formated_end_time > formated_res_start_time:
                 logging.debug(f"Hour conflict reserving room {id}")
-                return JSONResponse(status_code=400, content=f"Hour conflict reserving room {id}")
+                return HTTPException(status_code=400, detail=f"Hour conflict reserving room {id}")
             if not room:
-                return JSONResponse(status_code=404, content="Room not found")
+                raise HTTPException(status_code=404, detail="Room not found")
         return JSONResponse(status_code=200, content=f"Room {id} available")
     except:
         logging.exception("Error checking room availability")
-        return JSONResponse(status_code=400, content="Error checking room availability")
+        raise HTTPException(status_code=400, detail="Error checking room availability")
 
 @router.get("/rooms/{id}/reservations")
 async def get_room_reservations(id: int, date: str | None = None):
@@ -145,7 +148,7 @@ async def get_room_reservations(id: int, date: str | None = None):
         if reservations:
             return JSONResponse(status_code=200, content=reservations_to_dict)
         
-        return JSONResponse(status_code=202, content="No reservations for this room")
+        return HTTPException(status_code=202, detail="No reservations for this room")
     except:
         logging.exception("Error looking for reservations")
-        return JSONResponse(status_code=400, content="Error looking for reservations")
+        raise HTTPException(status_code=400, detail="Error looking for reservations")
