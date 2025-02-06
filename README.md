@@ -34,7 +34,7 @@ Para testá-los, você pode usar a própria documentação gerada pelo Swagger a
 
 Lá você encontrará mais detalhes sobre cada rota.
 
-> **Atenção, com o endpoint DELETE /user/{email}. Para utilizá-lo, é necessário gerar um token antes.**
+> **Atenção, com o endpoint DELETE /reservations/{id}. Para utilizá-lo, é necessário gerar um token antes.**
 
 ### POST
 #### Cadastro de uma sala
