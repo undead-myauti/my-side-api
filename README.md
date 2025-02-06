@@ -106,7 +106,7 @@ Lá você encontrará mais detalhes sobre cada rota.
 | `start_time`      | `string` | **Required as URL param** |
 | `end_time`      | `string` | **Required as URL param**|
 
-#### Exibir disponibilidade de uma sala em um período de tempo
+#### Exibir todas as reservas de uma sala ou as reservas para uma data específica
 
 ```http
   GET /rooms/{id}/reservations
