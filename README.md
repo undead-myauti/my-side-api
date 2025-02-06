@@ -1,6 +1,6 @@
 
 # MySide API
-Essa é uma API desenvolvida como teste técnico para a MySide. Feita utilizando FastAPI como framework backend e se comunicando com um banco de dados PostgreSQL. Toda a aplicação está contida em um contâiner Docker.
+Essa é uma API desenvolvida como teste técnico para a MySide, onde é possível criar salas, usuários e reservas para as salas. Feita utilizando FastAPI como framework backend e se comunicando com um banco de dados PostgreSQL. Toda a aplicação está contida em um contâiner Docker.
 
 ## Requisitos
 * Docker
