@@ -142,7 +142,7 @@ Lá você encontrará mais detalhes sobre cada rota.
 #### Deletar uma reserva
 
 ```http
-  DELETE /user/{email}
+  DELETE /reservations/{id}
 ```
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
